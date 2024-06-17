@@ -17,6 +17,13 @@ export const createUser = async (
         lastName,
         password,
       },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+      },
     });
     return user;
   } catch (error) {

@@ -8,6 +8,13 @@ export const getUser = async (username: string, password: string) => {
         username: username,
         password: password,
       },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+      },
     });
     return user;
   } catch (error) {

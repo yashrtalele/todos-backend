@@ -5,6 +5,9 @@ import { createUser } from "../prisma/queries/user/createUser";
 import { getUser } from "../prisma/queries/user/getUser";
 import { UserSignUpSchema } from "../schemas/user/user.signup.schema";
 import { UserSignInSchema } from "../schemas/user/user.signin.schema";
+import { hashPassword, validatePassword } from "../services/passwordService";
+import jwt from "jsonwebtoken";
+const JWT_SECRET = process.env.JWT_SECRET;
 const router: Router = express.Router();
 
 router.post("/signup", async (req: Request, res: Response) => {
@@ -16,16 +19,21 @@ router.post("/signup", async (req: Request, res: Response) => {
   }
 
   const { username, email, firstName, lastName, password } = req.body;
+  const hashPasswordedPassword = await hashPassword(password);
   try {
     const user = await createUser(
       username,
       email,
       firstName,
       lastName,
-      password,
+      hashPasswordedPassword,
     );
+    const userId: number = user.id;
+
+    const token = jwt.sign({ userId }, JWT_SECRET as string);
     return res.status(HTTP_STATUS.CREATED).json({
       message: "User created successfully",
+      token: token,
       user,
     });
   } catch (error) {
