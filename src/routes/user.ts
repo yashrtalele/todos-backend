@@ -52,16 +52,32 @@ router.post("/signin", async (req: Request, res: Response) => {
   }
   const { username, password } = req.body;
   try {
-    const user = await getUser(username, password);
+    const user = await getUser(username);
     if (user === null) {
       return res.status(HTTP_STATUS.NOT_FOUND).json({
         message: "User does not exist",
       });
     }
+    const isValidPassword = await validatePassword(password, user.password);
+    if (!isValidPassword) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        message: "Invalid password",
+      });
+    }
+    const userId: number = user.id;
+
+    const token = jwt.sign({ userId }, JWT_SECRET as string);
 
     return res.status(HTTP_STATUS.OK).json({
       message: "User logged in successfully",
-      user,
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
     });
   } catch (error) {
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({

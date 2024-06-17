@@ -1,12 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-export const getUser = async (username: string, password: string) => {
+export const getUser = async (username: string) => {
   try {
     const user = await prisma.user.findUnique({
       where: {
         username: username,
-        password: password,
       },
       select: {
         id: true,
@@ -14,6 +13,7 @@ export const getUser = async (username: string, password: string) => {
         email: true,
         firstName: true,
         lastName: true,
+        password: true,
       },
     });
     return user;
